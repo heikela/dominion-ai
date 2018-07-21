@@ -52,6 +52,15 @@ class PlayerState:
 class GameState:
     def __init__(self, players):
         self.players = {player: PlayerState() for player in players}
+        self.supply = {
+            'copper': [cardByName['copper']] * 60,
+            'silver': [cardByName['silver']] * 40,
+            'gold': [cardByName['gold']] * 30,
+            'estate': [cardByName['estate']] * 8,
+            'duchy': [cardByName['duchy']] * 8,
+            'province': [cardByName['province']] * 8,
+        }
+
 
 if __name__ == '__main__':
     gameState = GameState(['mikko', 'beta-ai'])

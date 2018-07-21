@@ -61,7 +61,9 @@ class GameState:
             'province': [cardByName['province']] * 8,
         }
 
+    def __repr__(self):
+        return 'GameState(players={})'.format(self.players)
 
 if __name__ == '__main__':
     gameState = GameState(['mikko', 'beta-ai'])
-    print(gameState.players)
+    print(gameState)

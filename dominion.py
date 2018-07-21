@@ -26,9 +26,32 @@ initialPlayerCards = [cardByName['copper']] * 7 + [cardByName['estate']] * 3
 def initialPlayerDeck():
     return random.sample(initialPlayerCards, len(initialPlayerCards))
 
+class PlayerState:
+    def __init__(self):
+        self.deck = initialPlayerDeck()
+        self.hand = []
+        self.discard = []
+        for _ in range(5):
+            self.draw()
+
+    def __repr__(self):
+        return 'PlayerState(deck={!r}, hand={!r}, discard={!r})'.format(self.deck, self.hand, self.discard)
+
+    def __str__(self):
+        return 'PlayerState(deck size={}, hand={}, discard={})'.format(len(self.deck), self.hand, self.discard)
+
+    def draw(self):
+        if not self.deck:
+            self.deck = self.discard
+            self.discard = []
+            random.shuffle(self.deck)
+        if self.deck:
+            self.hand.append(self.deck.pop())
+
+
 class GameState:
     def __init__(self, players):
-        self.players = {player: {'deck': initialPlayerDeck()} for player in players}
+        self.players = {player: PlayerState() for player in players}
 
 if __name__ == '__main__':
     gameState = GameState(['mikko', 'beta-ai'])

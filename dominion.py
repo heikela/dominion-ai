@@ -15,7 +15,7 @@ cards = [
     Card('silver', CardType.treasure, 3, [Effect(EffectType.coins, 1)], 0),
     Card('gold', CardType.treasure, 6, [Effect(EffectType.coins, 1)], 0),
     Card('estate', CardType.victory, 2, [], 1),
-    Card('county', CardType.victory, 5, [], 3),
+    Card('duchy', CardType.victory, 5, [], 3),
     Card('province', CardType.victory, 8, [], 6)
 ]
 

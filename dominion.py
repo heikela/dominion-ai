@@ -12,8 +12,8 @@ Effect = namedtuple('effect', 'type value')
 
 cards = [
     Card('copper', CardType.treasure, 0, [Effect(EffectType.coins, 1)], 0),
-    Card('silver', CardType.treasure, 3, [Effect(EffectType.coins, 1)], 0),
-    Card('gold', CardType.treasure, 6, [Effect(EffectType.coins, 1)], 0),
+    Card('silver', CardType.treasure, 3, [Effect(EffectType.coins, 2)], 0),
+    Card('gold', CardType.treasure, 6, [Effect(EffectType.coins, 3)], 0),
     Card('estate', CardType.victory, 2, [], 1),
     Card('duchy', CardType.victory, 5, [], 3),
     Card('province', CardType.victory, 8, [], 6)

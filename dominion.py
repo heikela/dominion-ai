@@ -42,24 +42,6 @@ class PlayerState:
         self._draw_hand()
         self.start_turn()
 
-    def __repr__(self):
-        return 'PlayerState(name={!r}, deck={!r}, hand={!r}, discard={!r}, to_spend={!r})'.format(
-            self._name,
-            self._deck,
-            self._hand,
-            self._discard,
-            self._to_spend
-        )
-
-    def __str__(self):
-        return 'PlayerState(name={}, deck size={}, hand={}, discard={}, to_spend={})'.format(
-            self._name,
-            len(self._deck),
-            self._hand,
-            self._discard,
-            self._to_spend
-        )
-
     def get_name(self):
         return self._name
 
@@ -135,9 +117,6 @@ class GameState:
         self._game_step = GameStep.action
         self._active_player_idx = 0
 
-    def __repr__(self):
-        return 'GameState(players={})'.format(self._players)
-
     def get_first_choice(self):
         return self._purchase_or_play_treasure_choice(self._active_player())
 
@@ -185,8 +164,3 @@ class GameState:
         if self._active_player_idx >= len(self._players):
             self._active_player_idx = 0
         self._active_player().start_turn()
-
-if __name__ == '__main__':
-    gameState = GameState(['mikko', 'beta-ai'])
-    print(gameState)
-    print(gameState.get_first_choice())

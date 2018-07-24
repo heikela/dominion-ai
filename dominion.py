@@ -23,14 +23,18 @@ cards = [
 
 card_by_name = {card.name: card for card in cards}
 
-initial_player_cards = [card_by_name['copper']] * 7 + [card_by_name['estate']] * 3
+initial_player_cards = (
+    [card_by_name['copper']] * 7
+    + [card_by_name['estate']] * 3)
 
 GameStep = Enum('GameStep', 'action buy cleanup')
 
 ChoiceType = Enum('ChoiceType', 'buy play end_turn')
 
+
 def initial_player_deck():
     return random.sample(initial_player_cards, len(initial_player_cards))
+
 
 class PlayerState:
     def __init__(self, name):
@@ -72,14 +76,16 @@ class PlayerState:
         self._buys = 1
 
     def buy(self, card):
-        assert self._to_spend >= card.cost, "Bought a card that cannot be afforded and that shouldn't be available"
-        assert self._buys >= 0, "Bought a card when no buys left. This shouldn't be possible"
+        assert self._to_spend >= card.cost, (
+            "Bought a card that cannot be afforded.")
+        assert self._buys >= 0, "Bought a card when no buys left"
         self._to_spend -= card.cost
         self._buys -= 1
         self.gain(card)
 
     def play(self, card_name):
-        # this should always find a card. Crash with uncaught StopIteration exception if not
+        # this should always find a card.
+        # Crash with uncaught StopIteration exception if not
         card = next(card for card in self._hand if card.name == card_name)
         self._hand.remove(card)
         self._played.append(card)
@@ -139,19 +145,26 @@ class GameState:
         return self._players[self._active_player_idx]
 
     def _cards_available_at(self, cost):
-        return [supplyDeck[0] for supplyDeck in self._supply.values() if supplyDeck and supplyDeck[0].cost <= cost]
+        return [supplyDeck[0]
+                for supplyDeck
+                in self._supply.values()
+                if supplyDeck and supplyDeck[0].cost <= cost]
 
     def _purchase_or_play_treasure_choice(self, player):
         return Choice(
             player.get_name(),
-            list({(ChoiceType.play, card.name) for card in player.get_hand() if card.type == CardType.treasure})
-            + [(ChoiceType.buy, card.name) for card in self._cards_available_at(player.get_available_spend())]
-            + [(ChoiceType.end_turn,)]
-        )
+            list({(ChoiceType.play, card.name)
+                  for card in player.get_hand()
+                  if card.type == CardType.treasure})
+            + [(ChoiceType.buy, card.name)
+               for card
+               in self._cards_available_at(player.get_available_spend())]
+            + [(ChoiceType.end_turn,)])
 
     def _purchase(self, player, card_name):
         supply_deck = self._supply[card_name]
-        assert supply_deck, "Purchase from an empty supply deck should not be possible"
+        assert supply_deck, (
+            "Purchase from an empty supply deck should not be possible")
         card = supply_deck.pop()
         player.buy(card)
 

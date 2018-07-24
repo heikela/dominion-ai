@@ -1,5 +1,6 @@
 import random
 
+
 class HumanPlayer:
     def observation(self, observation):
         print(observation)
@@ -16,6 +17,7 @@ class HumanPlayer:
             except ValueError:
                 choice = -1
         return choice
+
 
 class RandomPlayer:
     def observation(self, observation):

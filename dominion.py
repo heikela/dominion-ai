@@ -3,6 +3,7 @@ from collections import namedtuple
 import random
 
 from choice import Choice
+from observation import Observation
 
 Card = namedtuple('card', 'name type cost effects vp')
 
@@ -37,8 +38,9 @@ def initial_player_deck():
 
 
 class PlayerState:
-    def __init__(self, name):
+    def __init__(self, name, observation_buffer):
         self._name = name
+        self._observations = observation_buffer
         self._deck = initial_player_deck()
         self._hand = []
         self._played = []
@@ -64,7 +66,9 @@ class PlayerState:
             self._discard = []
             random.shuffle(self._deck)
         if self._deck:
-            self._hand.append(self._deck.pop())
+            drawn_card = self._deck.pop()
+            self._hand.append(drawn_card)
+            self._draw_card_observed(drawn_card)
 
     def cleanup(self):
         self._discard_hand()
@@ -81,6 +85,7 @@ class PlayerState:
         assert self._buys >= 0, "Bought a card when no buys left"
         self._to_spend -= card.cost
         self._buys -= 1
+        self._buy_card_observed(card)
         self.gain(card)
 
     def play(self, card_name):
@@ -89,6 +94,7 @@ class PlayerState:
         card = next(card for card in self._hand if card.name == card_name)
         self._hand.remove(card)
         self._played.append(card)
+        self._play_card_observed(card)
         for effect in card.effects:
             if effect.type == EffectType.coins:
                 self._to_spend += effect.value
@@ -108,10 +114,29 @@ class PlayerState:
         self._discard.extend(self._played)
         self._played = []
 
+    def _observation(self, observation):
+        self._observations.append(observation)
+
+    def _play_card_observed(self, card):
+        message = "{} plays {}".format(self._name, card.name)
+        self._observation(Observation(self._name, message, message))
+
+    def _buy_card_observed(self, card):
+        message = "{} buys {}".format(self._name, card.name)
+        self._observation(Observation(self._name, message, message))
+
+    def _draw_card_observed(self, card):
+        private = "{} draws {}".format(self._name, card.name)
+        public = "{} draws a card".format(self._name)
+        self._observation(Observation(self._name, private, public))
+
 
 class GameState:
     def __init__(self, players):
-        self._players = [PlayerState(player) for player in players]
+        self._observations = []
+        self._published_observations = 0
+        self._players = [PlayerState(player, self._observations)
+                         for player in players]
         self._supply = {
             'copper': [card_by_name['copper']] * 60,
             'silver': [card_by_name['silver']] * 40,
@@ -124,7 +149,8 @@ class GameState:
         self._active_player_idx = 0
 
     def get_first_choice(self):
-        return self._purchase_or_play_treasure_choice(self._active_player())
+        return (self._publish_observations(),
+                self._purchase_or_play_treasure_choice(self._active_player()))
 
     def get_next_choice(self, chosen):
         choice_type = chosen[0]
@@ -136,10 +162,16 @@ class GameState:
             self._active_player().play(chosen[1])
         else:
             self._cleanup_and_next_player()
-        return self._purchase_or_play_treasure_choice(self._active_player())
+        return (self._publish_observations(),
+                self._purchase_or_play_treasure_choice(self._active_player()))
 
     def is_game_over(self):
         return False  # todo
+
+    def _publish_observations(self):
+        new_observations = self._observations[self._published_observations:]
+        self._published_observations = len(self._observations)
+        return new_observations
 
     def _active_player(self):
         return self._players[self._active_player_idx]

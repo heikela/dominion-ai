@@ -5,7 +5,8 @@ import dominion
 class Game:
     def __init__(self):
         self.players = {
-            'mikko': HumanPlayer(),
+            #'mikko': HumanPlayer(),
+            'mikko': RandomPlayer(print_observations=True),
             'beta-ai': RandomPlayer()
         }
         self.game_state = dominion.GameState(['mikko', 'beta-ai'])

@@ -20,8 +20,12 @@ class HumanPlayer:
 
 
 class RandomPlayer:
+    def __init__(self, print_observations=False):
+        self._print_observations = print_observations
+
     def observation(self, observation):
-        pass
+        if self._print_observations:
+            print(observation)
 
     def choose(self, actions):
         return random.randrange(len(actions))

@@ -166,7 +166,11 @@ class GameState:
                 self._purchase_or_play_treasure_choice(self._active_player()))
 
     def is_game_over(self):
-        return False  # todo
+        empty_supplies = [
+            name
+            for name, deck in self._supply.items()
+            if not deck]
+        return 'province' in empty_supplies or len(empty_supplies) >= 3
 
     def _publish_observations(self):
         new_observations = self._observations[self._published_observations:]

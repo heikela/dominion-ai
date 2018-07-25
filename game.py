@@ -1,15 +1,17 @@
 from player import HumanPlayer, RandomPlayer
+from random import shuffle
 import dominion
 
 
 class Game:
-    def __init__(self):
-        self.players = {
-            #'mikko': HumanPlayer(),
-            'mikko': RandomPlayer(print_observations=True),
-            'beta-ai': RandomPlayer()
-        }
-        self.game_state = dominion.GameState(['mikko', 'beta-ai'])
+    def __init__(self, players={
+                                'mikko': HumanPlayer(),
+                                'beta-ai': RandomPlayer()
+                                }):
+        self.players = players
+        player_names = list(players.keys())
+        shuffle(player_names)
+        self.game_state = dominion.GameState(player_names)
 
     def play(self):
         observations, choice = self.game_state.get_first_choice()

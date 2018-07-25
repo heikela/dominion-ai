@@ -46,7 +46,6 @@ class PlayerState:
         self._played = []
         self._discard = []
         self._draw_hand()
-        self.start_turn()
 
     def get_name(self):
         return self._name
@@ -75,9 +74,10 @@ class PlayerState:
         self._discard_played()
         self._draw_hand()
 
-    def start_turn(self):
+    def start_turn(self, turn_number):
         self._to_spend = 0
         self._buys = 1
+        self._start_turn_observed(turn_number)
 
     def buy(self, card):
         assert self._to_spend >= card.cost, (
@@ -117,6 +117,10 @@ class PlayerState:
     def _observation(self, observation):
         self._observations.append(observation)
 
+    def _start_turn_observed(self, turn_number):
+        message = "turn {} starts for {}".format(turn_number, self._name)
+        self._observation(Observation(self._name, message, message))
+
     def _play_card_observed(self, card):
         message = "{} plays {}".format(self._name, card.name)
         self._observation(Observation(self._name, message, message))
@@ -135,6 +139,7 @@ class GameState:
     def __init__(self, players):
         self._observations = []
         self._published_observations = 0
+        self._turn = 1
         self._players = [PlayerState(player, self._observations)
                          for player in players]
         self._supply = {
@@ -149,6 +154,7 @@ class GameState:
         self._active_player_idx = 0
 
     def get_first_choice(self):
+        self._players[0].start_turn(self._turn)
         return (self._publish_observations(),
                 self._purchase_or_play_treasure_choice(self._active_player()))
 
@@ -212,4 +218,5 @@ class GameState:
         self._active_player_idx += 1
         if self._active_player_idx >= len(self._players):
             self._active_player_idx = 0
-        self._active_player().start_turn()
+            self._turn += 1
+        self._active_player().start_turn(self._turn)

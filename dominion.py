@@ -102,6 +102,12 @@ class PlayerState:
     def gain(self, card):
         self._discard.append(card)
 
+    def get_all_cards(self):
+        return (self._deck
+                + self._hand
+                + self._played
+                + self._discard)
+
     def _draw_hand(self):
         for _ in range(5):
             self.draw()
@@ -177,6 +183,27 @@ class GameState:
             for name, deck in self._supply.items()
             if not deck]
         return 'province' in empty_supplies or len(empty_supplies) >= 3
+
+    def print_result(self):
+        if not self.is_game_over():
+            print("Error, game is not over")
+        else:
+            cards = {player.get_name(): player.get_all_cards()
+                     for player in self._players}
+            card_counts = {
+                player: {
+                    card_name: len([card
+                                    for card in own_cards
+                                    if card.name == card_name])
+                    for card_name
+                    in list(set(card.name for card in own_cards))}
+                for player, own_cards
+                in cards.items()
+            }
+            points = {player: sum(card.vp for card in own_cards)
+                      for player, own_cards in cards.items()}
+            print("Points:", points)
+            print("Card counts:", card_counts)
 
     def _publish_observations(self):
         new_observations = self._observations[self._published_observations:]

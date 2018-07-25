@@ -17,6 +17,7 @@ class Game:
         while not self.game_state.is_game_over():
             observations, choice = self.game_state.get_next_choice(chosen)
             chosen = self._next_choice(observations, choice)
+        self.game_state.print_result()
 
     def _communicate_observations(self, observations):
         for observation in observations:

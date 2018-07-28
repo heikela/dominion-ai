@@ -50,3 +50,26 @@ class TabularQEstimator(QEstimatorBase):
         lines = [format_rule(s_a, n_q)
                  for s_a, n_q in items]
         return '\n'.join(lines)
+
+
+class CappedTabularQEstimator(TabularQEstimator):
+    """An Estimator that simply keeps track of number of occurrences
+    of each state, action pair, and the average of the provided target
+    values, but a maximum imposed on weight given to old observations"""
+    def __init__(self, cap, other=None):
+        def default_for_s_a():
+            return (0, 0)
+
+        self._cap = cap
+        if other:
+            self._q_estimates = copy.deepcopy(other._q_estimates)
+        else:
+            self._q_estimates = defaultdict(default_for_s_a)
+
+    def learnFrom(self, S, A, target):
+        old_n, old_q = self._q_estimates[(S, A)]
+        if old_n > self._cap:
+            old_n = self._cap
+        new_n = old_n + 1
+        updated = (new_n, (old_n * old_q + target) / new_n)
+        self._q_estimates[(S, A)] = updated

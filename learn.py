@@ -3,7 +3,7 @@ from player import RandomPlayer
 from random import random, randrange
 from collections import namedtuple, OrderedDict
 import numpy as np
-from estimators import TabularQEstimator
+from estimators import CappedTabularQEstimator
 
 
 GameStats = namedtuple('GameStats', 'win turns score')
@@ -68,7 +68,7 @@ def mc_evaluate(estimator,
 
 def improve_via_self_play():
     opponent = RandomPlayer()
-    estimator = TabularQEstimator()
+    estimator = CappedTabularQEstimator(200000)
     old_estimator = estimator
     while True:
         stats = mc_evaluate(
@@ -82,7 +82,7 @@ def improve_via_self_play():
             old_estimator = estimator
             opponent = ObservationIgnoringAgent(
                 EpsilonGreedy(old_estimator, 0))
-            estimator = TabularQEstimator(estimator)
+            estimator = CappedTabularQEstimator(200000, estimator)
             print('Win rate of over 75% reached.')
             print('Making greedy version of current policy the opponent')
 

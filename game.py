@@ -19,7 +19,12 @@ class Game:
         while not self.game_state.is_game_over():
             observations, choice = self.game_state.get_next_choice(chosen)
             chosen = self._next_choice(observations, choice)
-        self.game_state.print_result()
+
+    def get_winner(self):
+        return self.game_state.get_winner()
+
+    def get_stats(self):
+        return self.game_state.get_stats()
 
     def _communicate_observations(self, observations):
         for observation in observations:
@@ -38,3 +43,4 @@ class Game:
 if __name__ == '__main__':
     game = Game()
     game.play()
+    game.game_state.print_result()

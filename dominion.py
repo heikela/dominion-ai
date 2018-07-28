@@ -141,6 +141,9 @@ class PlayerState:
         self._observation(Observation(self._name, private, public))
 
 
+DominionStats = namedtuple('DominionStats', 'winner turns score')
+
+
 class GameState:
     def __init__(self, players):
         self._observations = []
@@ -204,6 +207,31 @@ class GameState:
                       for player, own_cards in cards.items()}
             print("Points:", points)
             print("Card counts:", card_counts)
+
+    def get_stats(self):
+        if not self.is_game_over():
+            return None
+        else:
+            winner, score = self.get_winner()
+            return DominionStats(
+                winner=winner,
+                turns=self._turn,
+                score=score
+            )
+
+    def get_winner(self):
+        if not self.is_game_over():
+            return None
+        else:
+            cards = {player.get_name(): player.get_all_cards()
+                     for player in self._players}
+            points = {player: sum(card.vp for card in own_cards)
+                      for player, own_cards in cards.items()}
+            winner, most_points = None, -1000
+            for player, points in points.items():
+                if (points > most_points):
+                    winner, most_points = player, points
+            return winner, most_points
 
     def _publish_observations(self):
         new_observations = self._observations[self._published_observations:]

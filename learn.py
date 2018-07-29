@@ -4,7 +4,9 @@ from collections import namedtuple, OrderedDict
 import numpy as np
 from estimators import TabularQEstimator
 from policy import Greedy, EpsilonSoft
+from datetime import datetime
 
+import matplotlib.pyplot as plt
 
 GameStats = namedtuple('GameStats', 'win turns score')
 
@@ -20,7 +22,7 @@ class Stats:
         return OrderedDict([
             ('games', len(self._stats)),
             ('win_rate', np.mean([game.win for game in self._stats])),
-            ('averate_turns', np.mean([game.turns for game in self._stats])),
+            ('average_turns', np.mean([game.turns for game in self._stats])),
             ('average_score', np.mean([game.score for game in self._stats])),
         ])
 
@@ -37,6 +39,7 @@ def mc_evaluate(estimators,
                 opponent,
                 games=1000,
                 games_between_stats=100):
+    all_stats = []
     for i in range(games):
         if i % games_between_stats == 0:
             stats = Stats()
@@ -64,26 +67,34 @@ def mc_evaluate(estimators,
                 i))
             for stat, value in stats.summarise().items():
                 print('{} = {}'.format(stat, value))
-    return stats
+            all_stats.append(stats.summarise())
+    return all_stats
 
 
 def improve_via_self_play():
+    total_games = 20000
     opponent = RandomPlayer()
     estimator = TabularQEstimator()
     old_estimator = None
     policy = EpsilonSoft(0.1, Greedy(estimator))
-    while True:
+    games_between_stats = 100
+    game = 0
+    all_stats = []
+    while game < total_games:
         stats = mc_evaluate(
             [estimator],
             policy=policy,
             opponent=opponent,
             games=1000,
-            games_between_stats=100)
+            games_between_stats=games_between_stats)
+        for stat_entry in stats:
+            game += stat_entry['games']
+        all_stats.extend(stats)
         print('current estimator')
         print(estimator)
         print('old estimator')
         print(old_estimator)
-        if (stats.summarise()['win_rate'] > 0.65):
+        if (stats[-1]['win_rate'] > 0.65):
             old_estimator = estimator
             opponent = ObservationIgnoringAgent(
                 Greedy(old_estimator))
@@ -93,6 +104,27 @@ def improve_via_self_play():
             print('Making greedy version of current policy the opponent')
         else:
             policy = EpsilonSoft(0.1, Greedy(estimator))
+    x_values = range(
+        0,
+        games_between_stats * len(all_stats),
+        games_between_stats)
+    plt.plot(
+        x_values,
+        list(map(lambda s: s['average_turns'], all_stats)),
+        label='turns')
+    plt.plot(
+        x_values,
+        list(map(lambda s: s['average_score'], all_stats)),
+        label='winning score')
+    plt.plot(
+        x_values,
+        list(map(lambda s: s['win_rate'] * 100, all_stats)),
+        label='win rate')
+    plt.xlabel('game')
+    plt.legend()
+    now = datetime.now()
+    now = now.replace(microsecond=0)
+    plt.savefig('results/learning-results-' + now.isoformat() + '.png')
 
 
 class ObservationIgnoringAgent:

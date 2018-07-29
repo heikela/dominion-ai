@@ -57,4 +57,17 @@ the undiscounted return does not provide a learning signal anymore.
 
 Note: try discounting the rewards in the return in case that helps
 
-Self play is not trivial to get working. Switching opponents invalidates Q values.
+Self play is not trivial to get working. Switching opponents invalidates Q values,
+and if one were to continue with old Q values, the result would be that the most
+often taken actions would be deemed worse than before, because a stronger opponent
+wins more games leading to lower returns overall.
+
+It seems difficult for the Q = f(A) approach to learn that playing coppers is
+a good idea. They usually end up with a lower Q value than e.g. buying an estate,
+which leads to suboptimal behaviour. The reason must be that on average, playing
+a lot of coppers is indeed correlated with poor performance, despite the fact
+that playing coppers instead of purchasing a card before playing coppers
+is (in this simple variant of the game) always optimal. Whether allowing the
+algorighm to start looking into (an incomplete view of) state will help is
+one of the things I'd like to investigate next, but for that, it seems like
+I also need better ways to keep track of how well the training is performing.

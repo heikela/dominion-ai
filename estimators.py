@@ -2,6 +2,10 @@ from collections import defaultdict
 import copy
 
 
+def default_for_s_a():
+    return (0, 0)
+
+
 class QEstimatorBase:
     """Base class for estimators that can predict Q values based on
     state and action, and learn from experience based on
@@ -18,8 +22,6 @@ class TabularQEstimator(QEstimatorBase):
     of each state, action pair, and the average of the provided target
     values"""
     def __init__(self, other=None):
-        def default_for_s_a():
-            return (0, 0)
         if other:
             self._q_estimates = copy.deepcopy(other._q_estimates)
         else:

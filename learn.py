@@ -1,10 +1,11 @@
 from game import Game
-from player import RandomPlayer
+from player import RandomPlayer, ObservationIgnoringAgent
 from collections import namedtuple, OrderedDict
 import numpy as np
 from estimators import TabularQEstimator
 from policy import Greedy, EpsilonSoft
 from datetime import datetime
+import pickle
 
 import matplotlib.pyplot as plt
 
@@ -124,27 +125,14 @@ def improve_via_self_play():
     plt.legend()
     now = datetime.now()
     now = now.replace(microsecond=0)
-    plt.savefig('results/learning-results-' + now.isoformat() + '.png')
-
-
-class ObservationIgnoringAgent:
-    """An agent that ignores observations given to it, and passes
-    an empty tuple as the state to the policy function given
-    to the constructor. Acts according to the policy."""
-    def __init__(self, policy):
-        self._policy = policy
-        self._decisions = []
-
-    def observation(self, observation):
-        pass
-
-    def choose(self, actions):
-        choice = self._policy.choose((), actions)
-        self._decisions.append(((), actions[choice]))
-        return choice
-
-    def get_decisions(self):
-        return self._decisions
+    timestamp = now.isoformat()
+    plt.savefig('results/learning-results-' + timestamp + '.png')
+    with open('models/final-models-' + timestamp + '.p', 'wb') as file:
+        pickle.dump(
+            {
+                'old_estimator': old_estimator,
+                'latest_estimator': estimator
+            }, file)
 
 
 if __name__ == '__main__':

@@ -1,4 +1,8 @@
-from player import HumanPlayer, RandomPlayer
+import pickle
+import sys
+
+from player import HumanPlayer, RandomPlayer, ObservationIgnoringAgent
+from policy import Greedy
 from random import shuffle
 import dominion
 
@@ -41,6 +45,16 @@ class Game:
 
 
 if __name__ == '__main__':
-    game = Game()
+    if len(sys.argv) > 1:
+        with open(sys.argv[1], 'rb') as file:
+            estimators = pickle.load(file)
+        game = Game(
+            players={
+                'mikko': HumanPlayer(),
+                'beta-ai': ObservationIgnoringAgent(
+                    Greedy(estimators['old_estimator']))
+            })
+    else:
+        game = Game()
     game.play()
     game.game_state.print_result()

@@ -46,3 +46,9 @@ is (in this simple variant of the game) always optimal. Whether allowing the
 algorighm to start looking into (an incomplete view of) state will help is
 one of the things I'd like to investigate next, but for that, it seems like
 I also need better ways to keep track of how well the training is performing.
+
+## Analysis, 5/8/2018
+
+Turns out that tracking the state accurately is critical for MC policy evaluation to work.
+If samples from different states are confounded, the algorithm won't produce
+correct results. This must be behind the poor results.

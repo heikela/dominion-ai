@@ -52,3 +52,13 @@ I also need better ways to keep track of how well the training is performing.
 Turns out that tracking the state accurately is critical for MC policy evaluation to work.
 If samples from different states are confounded, the algorithm won't produce
 correct results. This must be behind the poor results.
+
+As an example for a simple MDP where this problem is evident, consider Figure 1. below. Assume S is the starting state and F0, F1, F2 are the terminal states. F0 is a bad state, F1 is a good state, and F2 is the better state. Action A aims to reach the good state, action B aims to reach an intermediate state S', and action C aims to reach the better state. Action C is only available in state S'. All actions have a 50% chance of ending up in the bad state instead of the destination mentioned above.
+
+![Example MDP](results/counterexample.jpg)
+
+*Figure 1. A simple case where the MC evaluation problem comes up*
+
+When we solve for undiscounted Q values manually, we find out that Q(S, B) = 0.75 is the highest Q value of any action in state S, and Q(S', C) is the highest Q value in state C, meaning these are the optimal actions. However, if we try to evaluate a uniformly random policy with MC policy evaluation, but implement it in such a way that the algorighm cannot keep track of which actions happen in S vs in S', we get a biased result where the quality of action B is underestimated, and action A ends up being ranked higher than it (I get Q(state in {S, S'}, B) ~= 0.4).
+
+I suspect something like this is happening re: playing treasures and buying better treasures vs buying coppers and estates.

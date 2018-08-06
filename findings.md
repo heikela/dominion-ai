@@ -59,6 +59,6 @@ As an example for a simple MDP where this problem is evident, consider Figure 1.
 
 *Figure 1. A simple case where the MC evaluation problem comes up*
 
-When we solve for undiscounted Q values manually, we find out that Q(S, B) = 0.75 is the highest Q value of any action in state S, and Q(S', C) is the highest Q value in state C, meaning these are the optimal actions. However, if we try to evaluate a uniformly random policy with MC policy evaluation, but implement it in such a way that the algorighm cannot keep track of which actions happen in S vs in S', we get a biased result where the quality of action B is underestimated, and action A ends up being ranked higher than it (I get Q(state in {S, S'}, B) ~= 0.4).
+When we solve for undiscounted Q values manually, we find out that Q(S, B) = 0.75 is the highest Q value of any action in state S, and Q(S', C) = 1.5 is the highest Q value in state S', meaning that B and C are the optimal actions in these states respectively. However, if we try to evaluate a uniformly random policy with MC policy evaluation, but implement it in such a way that the algorighm cannot keep track of which actions happen in S vs in S', we get a incorrect result where the quality of action B is underestimated, and action A ends up being ranked higher than it (I get Q(state in {S, S'}, B) ~= 0.4, whereas Q(S, A) = 0.5).
 
 I suspect something like this is happening re: playing treasures and buying better treasures vs buying coppers and estates.

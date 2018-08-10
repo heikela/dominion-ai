@@ -94,10 +94,12 @@ class PlayerState:
         card = next(card for card in self._hand if card.name == card_name)
         self._hand.remove(card)
         self._played.append(card)
-        self._play_card_observed(card)
         for effect in card.effects:
             if effect.type == EffectType.coins:
                 self._to_spend += effect.value
+        # TODO the timing of this observation will need to change again when
+        # complex effects are introduced
+        self._play_card_observed(card)
 
     def gain(self, card):
         self._discard.append(card)

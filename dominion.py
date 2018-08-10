@@ -1,6 +1,7 @@
 from enum import Enum
 from collections import namedtuple
 import random
+import re
 
 from choice import Choice
 from observation import Observation
@@ -280,3 +281,11 @@ class GameState:
             self._active_player_idx = 0
             self._turn += 1
         self._active_player().start_turn(self._turn)
+
+
+def ignore_player_and_turn_projection(state):
+    no_turn = re.sub(r'turn \d* starts', 'turn starts', state)
+    no_player_1 = re.sub(r'epsilon', '', no_turn)
+    no_player_2 = re.sub(r'random', '', no_player_1)
+    no_card = re.sub(r'plays \w* and now has', 'plays a card and now has', no_player_2)
+    return no_card

@@ -40,18 +40,23 @@ class TabularQEstimator(QEstimatorBase):
         return repr(self._q_estimates)
 
     def __str__(self):
-        items = list(self._q_estimates.items())
-        items.sort(key=lambda item: (-item[1][1], -item[1][0]))
-
         def format_rule(s_a, n_q):
-            _, (action_type, *action_params) = s_a
+            state, (action_type, *action_params) = s_a
             n, q = n_q
-            return '{} {} : Q={}, N={}'.format(
-                action_type, action_params, q, n)
+            return 'State: {} - Action: {} {} : Q={}, N={}'.format(
+                state, action_type, action_params, q, n)
 
-        lines = [format_rule(s_a, n_q)
-                 for s_a, n_q in items]
-        return '\n'.join(lines)
+        states = list(set([key[0] for key in self._q_estimates.keys()]))
+        states.sort(key=lambda state: sum([value[0] for key, value in self._q_estimates.items() if key[0] == state]))
+
+        all_lines = ''
+        for state in states:
+            items = [(key, value) for (key, value) in self._q_estimates.items() if key[0] == state]
+            items.sort(key=lambda item: (-item[1][1], -item[1][0]))
+            lines = [format_rule(s_a, n_q)
+                     for s_a, n_q in items]
+            all_lines = all_lines + '\n' + '\n'.join(lines)
+        return all_lines
 
 
 class CappedTabularQEstimator(TabularQEstimator):

@@ -1,11 +1,12 @@
 from game import Game
-from player import RandomPlayer, ObservationIgnoringAgent
+from player import RandomPlayer, AgentWithLatestObservationAsState
 from collections import namedtuple, OrderedDict
 import numpy as np
 from estimators import TabularQEstimator
 from policy import Greedy, EpsilonSoft
 from datetime import datetime
 import pickle
+from dominion import ignore_player_and_turn_projection
 
 import matplotlib.pyplot as plt
 
@@ -44,7 +45,7 @@ def mc_evaluate(estimators,
     for i in range(games):
         if i % games_between_stats == 0:
             stats = Stats()
-        agent = ObservationIgnoringAgent(policy)
+        agent = AgentWithLatestObservationAsState(policy, ignore_player_and_turn_projection)
         game = Game({
             'epsilon': agent,
             'random': opponent
@@ -73,12 +74,12 @@ def mc_evaluate(estimators,
 
 
 def improve_via_self_play():
-    total_games = 20000
+    total_games = 100000
     opponent = RandomPlayer()
     estimator = TabularQEstimator()
     old_estimator = None
     policy = EpsilonSoft(0.1, Greedy(estimator))
-    games_between_stats = 100
+    games_between_stats = 1000
     game = 0
     all_stats = []
     while game < total_games:
@@ -86,7 +87,7 @@ def improve_via_self_play():
             [estimator],
             policy=policy,
             opponent=opponent,
-            games=1000,
+            games=5000,
             games_between_stats=games_between_stats)
         for stat_entry in stats:
             game += stat_entry['games']
@@ -97,12 +98,13 @@ def improve_via_self_play():
         print(old_estimator)
         if (stats[-1]['win_rate'] > 0.65):
             old_estimator = estimator
-            opponent = ObservationIgnoringAgent(
-                Greedy(old_estimator))
+            opponent = AgentWithLatestObservationAsState(
+                EpsilonSoft(0.1, Greedy(old_estimator)),
+                ignore_player_and_turn_projection)
             policy = EpsilonSoft(0.1, Greedy(old_estimator))
-            estimator = TabularQEstimator(estimator)
+            estimator = TabularQEstimator()
             print('Win rate of over 65% reached.')
-            print('Making greedy version of current policy the opponent')
+            print('Making the current policy the opponent')
         else:
             policy = EpsilonSoft(0.1, Greedy(estimator))
     x_values = range(

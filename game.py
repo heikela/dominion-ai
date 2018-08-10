@@ -1,7 +1,7 @@
 import pickle
 import sys
 
-from player import HumanPlayer, RandomPlayer, ObservationIgnoringAgent
+from player import HumanPlayer, RandomPlayer, AgentWithLatestObservationAsState
 from policy import Greedy
 from random import shuffle
 import dominion
@@ -51,8 +51,9 @@ if __name__ == '__main__':
         game = Game(
             players={
                 'mikko': HumanPlayer(),
-                'beta-ai': ObservationIgnoringAgent(
-                    Greedy(estimators['old_estimator']))
+                'beta-ai': AgentWithLatestObservationAsState(
+                    Greedy(estimators['old_estimator']),
+                    dominion.ignore_player_and_turn_projection)
             })
     else:
         game = Game()

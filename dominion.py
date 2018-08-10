@@ -128,7 +128,10 @@ class PlayerState:
         self._observation(Observation(self._name, message, message))
 
     def _play_card_observed(self, card):
-        message = "{} plays {}".format(self._name, card.name)
+        message = "{} plays {} and now has {} coins to spend".format(
+            self._name,
+            card.name,
+            self._to_spend)
         self._observation(Observation(self._name, message, message))
 
     def _buy_card_observed(self, card):

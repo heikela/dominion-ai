@@ -49,3 +49,28 @@ class ObservationIgnoringAgent:
 
     def get_decisions(self):
         return self._decisions
+
+
+def identity_projection(state):
+    return state
+
+
+class AgentWithLatestObservationAsState:
+    """An agent that assumes that the latest observation is the state.
+    Passes this and the choices to the policy and acts accordingly."""
+    def __init__(self, policy, projection=identity_projection):
+        self._policy = policy
+        self._decisions = []
+        self._state = ()
+        self._projection = projection
+
+    def observation(self, observation):
+        self._state = self._projection(observation)
+
+    def choose(self, actions):
+        choice = self._policy.choose(self._state, actions)
+        self._decisions.append((self._state, actions[choice]))
+        return choice
+
+    def get_decisions(self):
+        return self._decisions
